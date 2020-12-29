@@ -2,10 +2,10 @@
 
 require 'aws-sdk-kinesis'
 
-STREAM_NAME = 'yourstream'
-AFTER_TIMESTAMP = '2020-12-25T17:00:00-06:00'
+STREAM_NAME = ENV['STREAM_NAME']
+AFTER_TIMESTAMP = ENV['STARTING_TIME']
 
-kinesis = Aws::Kinesis::Client.new(region: 'us-east-1')
+kinesis = Aws::Kinesis::Client.new
 
 shards = kinesis.list_shards(
   stream_name: STREAM_NAME
