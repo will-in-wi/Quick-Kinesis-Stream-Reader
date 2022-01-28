@@ -14,6 +14,8 @@ shards = kinesis.list_shards(
 shards[:shards].each do |data|
   shard_id = data[:shard_id]
 
+  puts "SHARD: #{shard_id}"
+
   iter = kinesis.get_shard_iterator(
     stream_name: STREAM_NAME,
     shard_id: shard_id,
@@ -21,11 +23,20 @@ shards[:shards].each do |data|
     timestamp: Time.parse(AFTER_TIMESTAMP)
   )
 
-  recs = kinesis.get_records(
-    shard_iterator: iter[:shard_iterator]
-  )
+  iterator = iter[:shard_iterator]
 
-  recs[:records].each do |rec|
-    puts rec[:data]
+  while iterator
+    puts "ITERATOR: #{iterator}"
+    recs = kinesis.get_records(
+      shard_iterator: iterator
+    )
+
+    break if recs[:records].none?
+
+    recs[:records].each do |rec|
+      puts "RECORD #{rec[:sequence_number]}: #{rec[:data]}"
+    end
+
+    iterator = recs.next_shard_iterator
   end
 end
